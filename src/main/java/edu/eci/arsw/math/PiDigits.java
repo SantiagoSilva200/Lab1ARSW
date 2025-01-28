@@ -1,113 +1,60 @@
 package edu.eci.arsw.math;
 
-///  <summary>
-///  An implementation of the Bailey-Borwein-Plouffe formula for calculating hexadecimal
-///  digits of pi.
-///  https://en.wikipedia.org/wiki/Bailey%E2%80%93Borwein%E2%80%93Plouffe_formula
-///  *** Translated from C# code: https://github.com/mmoroney/DigitsOfPi ***
-///  </summary>
 public class PiDigits {
 
-    private static int DigitsPerSum = 8;
-    private static double Epsilon = 1e-17;
+    private static final double EPSILON = 1e-17;
 
-    
-    /**
-     * Returns a range of hexadecimal digits of pi.
-     * @param start The starting location of the range.
-     * @param count The number of digits to return
-     * @return An array containing the hexadecimal digits.
-     */
-    public static byte[] getDigits(int start, int count) {
-        if (start < 0) {
-            throw new RuntimeException("Invalid Interval");
-        }
-
-        if (count < 0) {
-            throw new RuntimeException("Invalid Interval");
+    public static byte[] getDigits(int start, int count, int numThreads) throws InterruptedException {
+        if (start < 0 || count < 0) {
+            throw new IllegalArgumentException("Invalid range");
         }
 
         byte[] digits = new byte[count];
-        double sum = 0;
+        int digitsPerThread = count / numThreads;
+        int remainder = count % numThreads;
 
-        for (int i = 0; i < count; i++) {
-            if (i % DigitsPerSum == 0) {
-                sum = 4 * sum(1, start)
-                        - 2 * sum(4, start)
-                        - sum(5, start)
-                        - sum(6, start);
+        Thread[] threads = new Thread[numThreads];
+        int currentStart = 0;
 
-                start += DigitsPerSum;
-            }
+        for (int i = 0; i < numThreads; i++) {
+            int threadCount = digitsPerThread + (i < remainder ? 1 : 0);
+            threads[i] = new ThreadLab(start + currentStart, threadCount, digits);
+            threads[i].start();
+            currentStart += threadCount;
+        }
 
-            sum = 16 * (sum - Math.floor(sum));
-            digits[i] = (byte) sum;
+        for (Thread thread : threads) {
+            thread.join();
         }
 
         return digits;
     }
 
-    /// <summary>
-    /// Returns the sum of 16^(n - k)/(8 * k + m) from 0 to k.
-    /// </summary>
-    /// <param name="m"></param>
-    /// <param name="n"></param>
-    /// <returns></returns>
+    public static byte[] calculateDigits(int start, int count) {
+        byte[] digits = new byte[count];
+        for (int i = 0; i < count; i++) {
+            digits[i] = (byte) computePiDigit(start + i);
+        }
+        return digits;
+    }
+
+    private static int computePiDigit(int n) {
+        double x = 4 * sum(1, n) - 2 * sum(4, n) - sum(5, n) - sum(6, n);
+        x = x - Math.floor(x);
+        return (int) (x * 16);
+    }
+
     private static double sum(int m, int n) {
         double sum = 0;
-        int d = m;
-        int power = n;
+        int k = 0;
 
         while (true) {
-            double term;
-
-            if (power > 0) {
-                term = (double) hexExponentModulo(power, d) / d;
-            } else {
-                term = Math.pow(16, power) / d;
-                if (term < Epsilon) {
-                    break;
-                }
-            }
-
+            double term = (Math.pow(16, n - k) % (8 * k + m)) / (8 * k + m);
+            if (term < EPSILON) break;
             sum += term;
-            power--;
-            d += 8;
+            k++;
         }
 
         return sum;
     }
-
-    /// <summary>
-    /// Return 16^p mod m.
-    /// </summary>
-    /// <param name="p"></param>
-    /// <param name="m"></param>
-    /// <returns></returns>
-    private static int hexExponentModulo(int p, int m) {
-        int power = 1;
-        while (power * 2 <= p) {
-            power *= 2;
-        }
-
-        int result = 1;
-
-        while (power > 0) {
-            if (p >= power) {
-                result *= 16;
-                result %= m;
-                p -= power;
-            }
-
-            power /= 2;
-
-            if (power > 0) {
-                result *= result;
-                result %= m;
-            }
-        }
-
-        return result;
-    }
-
 }
