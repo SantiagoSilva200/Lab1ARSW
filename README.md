@@ -73,9 +73,9 @@ Tres hilos con el metodo start:
 
 Tres hilos con el metodo run: 
 
-![Inicio metodo run](Screenshot%202025-01-29%20135745.png)
+![Inicio metodo run](img/Screenshot%202025-01-29%20135745.png)
 
-![Continuacion ](Screenshot%202025-01-29%20135810.png)
+![Continuacion ](img/Screenshot%202025-01-29%20135810.png)
 
 ### Cambie el incio con 'start()' por 'run()'. Cómo cambia la salida?, por qué?.
 
