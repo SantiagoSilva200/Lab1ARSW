@@ -12,8 +12,8 @@ package edu.eci.arsw.threads;
 
 public class CountThread extends Thread {
 
-    private int a;
-    private int b;
+    private final int a;
+    private final int b;
 
     public CountThread(int a, int b) {
         this.a = a;

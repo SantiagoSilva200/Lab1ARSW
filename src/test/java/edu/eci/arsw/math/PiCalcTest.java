@@ -1,8 +1,8 @@
 package edu.eci.arsw.math;
 
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class PiCalcTest {
 
@@ -28,14 +28,14 @@ public class PiCalcTest {
                 0x3, 0x8, 0xD, 0x0, 0x1, 0x3, 0x7, 0x7,
         };
 
-        int numThreads = 2;
-
-        for (int start = 0; start < expected.length; start++) {
-            for (int count = 0; count <= expected.length - start; count++) {
-                byte[] digits = PiDigits.getDigits(start, count, numThreads);
-                assertEquals("Incorrect length for start=" + start + " count=" + count, count, digits.length);
-                for (int i = 0; i < digits.length; i++) {
-                    assertEquals("Mismatch at position " + (start + i), expected[start + i], digits[i]);
+        for (int numThreads : new int[]{1, 2, 3}) {
+            for (int start = 0; start < expected.length; start++) {
+                for (int count = 0; count <= expected.length - start; count++) {
+                    byte[] digits = PiDigits.getDigits(start, count, numThreads);
+                    assertEquals("Incorrect length for start=" + start + " count=" + count + " with " + numThreads + " threads", count, digits.length);
+                    for (int i = 0; i < digits.length; i++) {
+                        assertEquals("Mismatch at position " + (start + i) + " with " + numThreads + " threads", expected[start + i], digits[i]);
+                    }
                 }
             }
         }
@@ -56,14 +56,14 @@ public class PiCalcTest {
                 0x3, 0x8, 0xD, 0x0, 0x1, 0x3, 0x7, 0x7,
         };
 
-        int numThreads = 3;
+        int numThreads = 3;  
 
         for (int start = 0; start < expected.length; start++) {
             for (int count = 0; count <= expected.length - start; count++) {
                 byte[] digits = PiDigits.getDigits(start, count, numThreads);
-                assertEquals("Incorrect length for start=" + start + " count=" + count, count, digits.length);
+                assertEquals("Incorrect length for start=" + start + " count=" + count + " with " + numThreads + " threads", count, digits.length);
                 for (int i = 0; i < digits.length; i++) {
-                    assertEquals("Mismatch at position " + (start + i), expected[start + i], digits[i]);
+                    assertEquals("Mismatch at position " + (start + i) + " with " + numThreads + " threads", expected[start + i], digits[i]);
                 }
             }
         }

@@ -21,10 +21,10 @@ public class CountThreadsMain {
         thread2.start();
         thread3.start();
 
-        System.out.println("**************mostrando threads con run**************");
-        thread1.run();
-        thread2.run();
-        thread3.run();
+        //System.out.println("**************mostrando threads con run**************");
+        //thread1.run();
+        //thread2.run();
+        //thread3.run();
         
     }
     
