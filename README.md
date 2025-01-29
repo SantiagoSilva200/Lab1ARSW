@@ -1,68 +1,265 @@
-## Escuela Colombiana de Ingeniería
-### Arquitecturas de Software
-### Introducción al paralelismo - hilos
+# Lab1ARSW
 
-### Trabajo individual o en parejas
+## Realizado por:
+    Santiago Cordoba Dueñas
+    Santiago Silva Roa 
 
-Entrega: Martes en el transcurso del día.
-Entregar: Fuentes y documento PDF con las respuestas.
+## Parte 1 - Hilos
 
-**Parte I Hilos Java**
+1. Implementacion CountThread 
 
-1. De acuerdo con lo revisado en las lecturas, complete las clases CountThread, para que las mismas definan el ciclo de vida de un hilo que imprima por pantalla los números entre A y B.
-2. Complete el método __main__ de la clase CountMainThreads para que:
-	1. Cree 3 hilos de tipo CountThread, asignándole al primero el intervalo [0..99], al segundo [99..199], y al tercero [200..299].
-	2. Inicie los tres hilos con 'start()'.
-	3. Ejecute y revise la salida por pantalla. 
-	4. Cambie el incio con 'start()' por 'run()'. Cómo cambia la salida?, por qué?.
+Primero hacemos que la clase herede de Threads, luego definimos dos parametros, uno de inicio y otro de fin.
+En la clase CountThread, recibe esos dos parametros y ejecuta el metodo run, que permite ejecutar en un hilo separado 
+cuando se llame a start(). 
 
-**Parte II Hilos Java**
+ ```yaml 
+public class CountThread extends Thread {
 
-La fórmula [BBP](https://en.wikipedia.org/wiki/Bailey%E2%80%93Borwein%E2%80%93Plouffe_formula) (Bailey–Borwein–Plouffe formula) es un algoritmo que permite calcular el enésimo dígito de PI en base 16, con la particularidad de no necesitar calcular nos n-1 dígitos anteriores. Esta característica permite convertir el problema de calcular un número masivo de dígitos de PI (en base 16) a uno [vergonzosamente paralelo](https://en.wikipedia.org/wiki/Embarrassingly_parallel). En este repositorio encontrará la implementación, junto con un conjunto de pruebas. 
+    private final int a;
+    private final int b;
 
-Para este ejercicio se quiere calcular, en el menor tiempo posible, y en una sola máquina (aprovechando las características multi-core de la mismas) al menos el primer millón de dígitos de PI (en base 16). Para esto
+    public CountThread(int a, int b) {
+        this.a = a;
+        this.b = b;
+    }
 
-1. Cree una clase de tipo Thread que represente el ciclo de vida de un hilo que calcule una parte de los dígitos requeridos.
-2. Haga que la función PiDigits.getDigits() reciba como parámetro adicional un valor N, correspondiente al número de hilos entre los que se va a paralelizar la solución. Haga que dicha función espere hasta que los N hilos terminen de resolver el problema para combinar las respuestas y entonces retornar el resultado. Para esto, revise el método [join](https://docs.oracle.com/javase/tutorial/essential/concurrency/join.html) del API de concurrencia de Java.
-3. Ajuste las pruebas de JUnit, considerando los casos de usar 1, 2 o 3 hilos (este último para considerar un número impar de hilos!)
+    @Override
+    public void run(){
+        for(int i = a; i < b; i++){
+            System.out.println(i);
+        }
+    }
+}
+ ```
+
+2. Modificacion clase Main, para crear los 3 hilos asignando rangos distintos: 
+
+Creamos los 3 hilos haciendo el llamado a CountThread y asignando los 3 rangos especificos 
+    1. (0 a 99)
+    2. (99 a 199)
+    3. (200 a 299)
+
+ ```yaml 
+ 
+ public class CountThreadsMain {
+    
+    public static void main(String a[]){
+        CountThread thread1 = new CountThread(0,99);
+        CountThread thread2 = new CountThread(99,199);
+        CountThread thread3 = new CountThread(200,299);
+
+        System.out.println("***********mostrando threads con start**************");
+        thread1.start();
+        thread2.start();
+        thread3.start();
+
+        //System.out.println("**************mostrando threads con run**************");
+        thread1.run();
+        thread2.run();
+        thread3.run();
+        
+    }
+}
+```
+
+## Pruebas
+
+Tres hilos con el metodo start: 
+
+![Inicio metodo start](img/WhatsApp-Image-2025-01-29-at-1.22.25-PM.png)
+
+![Continuacion](img/WhatsApp-Image-2025-01-29-at-1.22.44-PM.png)
 
 
-**Parte III Evaluación de Desempeño**
+Tres hilos con el metodo run: 
 
-A partir de lo anterior, implemente la siguiente secuencia de experimentos para calcular el millon de dígitos (hex) de PI, tomando los tiempos de ejecución de los mismos (asegúrese de hacerlos en la misma máquina):
+![Inicio metodo run](Screenshot%202025-01-29%20135745.png)
 
-1. Un solo hilo.
-2. Tantos hilos como núcleos de procesamiento (haga que el programa determine esto haciendo uso del [API Runtime](https://docs.oracle.com/javase/7/docs/api/java/lang/Runtime.html)).
-3. Tantos hilos como el doble de núcleos de procesamiento.
-4. 200 hilos.
-5. 500 hilos.
+![Continuacion ](Screenshot%202025-01-29%20135810.png)
 
-Al iniciar el programa ejecute el monitor jVisualVM, y a medida que corran las pruebas, revise y anote el consumo de CPU y de memoria en cada caso. ![](img/jvisualvm.png)
+### Cambie el incio con 'start()' por 'run()'. Cómo cambia la salida?, por qué?.
 
-Con lo anterior, y con los tiempos de ejecución dados, haga una gráfica de tiempo de solución vs. número de hilos. Analice y plantee hipótesis con su compañero para las siguientes preguntas (puede tener en cuenta lo reportado por jVisualVM):
+Cuando se usa el metodo start() se realiza una ejecucion de  los hilos en paralelo, lo que genera una salida desordenada, ya que los hilos corren al mismo tiempo. 
+
+En cambio, al usar run(), los hilos se ejecutan secuencialmente, uno tras otro, sin paralelismo, produciendo una salida más ordenada.
+
+## Parte 2 - Hilos Java
+
+1. Para la realizacion de este punto, creamos la implementacion de ThreaderLab: 
+
+Donde la clase posee tres atributos: 
+
+    start: posición inicial donde se generarán los dígitos de π.
+    count: cantidad de dígitos a calcular.
+    result: un arreglo donde se almacenarán los dígitos generados.
+
+Y, en el metodo run(): 
+    Se llama a PiDigits.calculateDigits(start, count) para calcular los dígitos de π.
+    Se copian los dígitos obtenidos en el arreglo result, comenzando en la posición start.
 
 
+```yaml
+public class ThreadLab extends Thread {
+    private final int start;
+    private final int count;
+    private final byte[] result;
 
-1. Según la [ley de Amdahls](https://www.pugetsystems.com/labs/articles/Estimating-CPU-Performance-using-Amdahls-Law-619/#WhatisAmdahlsLaw?):
+    public ThreadLab(int start, int count, byte[] result) {
+        this.start = start;
+        this.count = count;
+        this.result = result;
+    }
 
-	![](img/ahmdahls.png), donde _S(n)_ es el mejoramiento teórico del desempeño, _P_ la fracción paralelizable del algoritmo, y _n_ el número de hilos, a mayor _n_, mayor debería ser dicha mejora. Por qué el mejor desempeño no se logra con los 500 hilos?, cómo se compara este desempeño cuando se usan 200?. 
+    @Override
+    public void run() {
+        byte[] digits = PiDigits.calculateDigits(start, count);
+        System.arraycopy(digits, 0, result, start, count);
+    }
+}
+```
 
-2. Cómo se comporta la solución usando tantos hilos de procesamiento como núcleos comparado con el resultado de usar el doble de éste?.
+2. Modificamos la clase getDigits en la clase PiDigits, permitiendo agregar un parametro que indique la cantidad de hilos que queremos que se use en una solucion. 
 
-3. De acuerdo con lo anterior, si para este problema en lugar de 500 hilos en una sola CPU se pudiera usar 1 hilo en cada una de 500 máquinas hipotéticas, la ley de Amdahls se aplicaría mejor?. Si en lugar de esto se usaran c hilos en 500/c máquinas distribuidas (siendo c es el número de núcleos de dichas máquinas), se mejoraría?. Explique su respuesta.
+Despues, usamos el metodo Join, haciendo el bloqueo del hilo principal hasta que este termine su ejecucion. 
 
+```yaml
+public static byte[] getDigits(int start, int count, int numThreads) throws InterruptedException {
+        if (start < 0 || count < 0) {
+            throw new IllegalArgumentException("Invalid range");
+        }
 
+        byte[] digits = new byte[count];
+        int digitsPerThread = count / numThreads;
+        int remainder = count % numThreads;
 
-#### Criterios de evaluación.
+        Thread[] threads = new Thread[numThreads];
+        int currentStart = 0;
 
-1. Funcionalidad:
-	- El problema fue paralelizado (el tiempo de ejecución se reduce y el uso de los núcleos aumenta), y permite parametrizar el número de hilos usados simultáneamente.
+        for (int i = 0; i < numThreads; i++) {
+            int threadCount = digitsPerThread + (i < remainder ? 1 : 0);
+            threads[i] = new ThreadLab(start + currentStart, threadCount, digits);
+            threads[i].start();
+            currentStart += threadCount;
+        }
 
-2. Diseño:
-	- La signatura del método original sólo fue modificada con el parámetro original, y en el mismo debe quedar encapsulado la paralelización e inicio de la solución, y la sincronización de la finalización de la misma.
-	- Las nuevas pruebas con sólo UN hilo deben ser exactamente iguales a las originales, variando sólo el parámetro adicional. Se incluyeron pruebas con hilos adicionales, y las mismas pasan.
-	- Se plantea un método eficiente para combinar los resultados en el orden correcto (iterar sobre cada resultado NO sera eficiente).
+        for (Thread thread : threads) {
+            thread.join();
+        }
 
-3. Análisis.
-	- Se deja evidencia de la realización de los experimentos.
-	- Los análisis realizados son consistentes.
+        return digits;
+    }
+```
+
+3. Modificamos la clase Main para permitir hallar el enesimo numero de pi con 1,2 y 3 hilos. 
+
+```yaml
+public static void main(String[] a) throws InterruptedException {
+        System.out.println("Primeros 10 dígitos de PI con 1 hilo:");
+        System.out.println(bytesToHex(PiDigits.getDigits(0, 10, 1)));
+
+        System.out.println("Primeros 100 dígitos de PI con 2 hilos:");
+        System.out.println(bytesToHex(PiDigits.getDigits(0, 100, 2)));
+
+        System.out.println("Primeros 1,000,000 de dígitos de PI con 3 hilos:");
+        System.out.println(bytesToHex(PiDigits.getDigits(0, 10000, 3)));
+}
+```
+
+## Parte 3 - Evaluación de Desempeño
+
+Realizamos un metodo necesario para hacer las pruebas solicitadas: 
+
+```yaml
+ private static void runExperiments() throws InterruptedException {
+        int totalDigits = 1000; 
+        int numCores = Runtime.getRuntime().availableProcessors();
+
+        // Experimento 1: Con un solo hilo
+        System.out.println("Ejecutando con 1 hilo...");
+        long startTime = System.currentTimeMillis();
+        PiDigits.getDigits(0, totalDigits, 1); 
+        long endTime = System.currentTimeMillis();
+        System.out.println("Tiempo con 1 hilo: " + (endTime - startTime) + " ms");
+
+        // Experimento 2: Con tantos hilos como núcleos de CPU
+        System.out.println("Ejecutando con " + numCores + " hilos...");
+        startTime = System.currentTimeMillis();
+        PiDigits.getDigits(0, totalDigits, numCores); 
+        endTime = System.currentTimeMillis();
+        System.out.println("Tiempo con " + numCores + " hilos: " + (endTime - startTime) + " ms");
+
+        // Experimento 3: Con el doble de hilos que núcleos
+        System.out.println("Ejecutando con " + (numCores * 2) + " hilos...");
+        startTime = System.currentTimeMillis();
+        PiDigits.getDigits(0, totalDigits, numCores * 2); 
+        endTime = System.currentTimeMillis();
+        System.out.println("Tiempo con " + (numCores * 2) + " hilos: " + (endTime - startTime) + " ms");
+
+        // Experimento 4: Con 200 hilos
+        System.out.println("Ejecutando con 200 hilos...");
+        startTime = System.currentTimeMillis();
+        PiDigits.getDigits(0, totalDigits, 200); 
+        endTime = System.currentTimeMillis();
+        System.out.println("Tiempo con 200 hilos: " + (endTime - startTime) + " ms");
+
+        // Experimento 5: Con 500 hilos
+        System.out.println("Ejecutando con 500 hilos...");
+        startTime = System.currentTimeMillis();
+        PiDigits.getDigits(0, totalDigits, 500); 
+        endTime = System.currentTimeMillis();
+        System.out.println("Tiempo con 500 hilos: " + (endTime - startTime) + " ms");
+    }
+```
+
+Prueba 1: 
+
+4 digitos: 
+
+Resultados consola: 
+
+Ejecutando con 32 hilos... 
+Tiempo con 32 hilos: 101 ms 
+Ejecutando con 200 hilos... 
+Tiempo con 200 hilos: 107 ms 
+Ejecutando con 500 hilos... 
+Tiempo con 500 hilos: 150 ms
+
+![Graficas prueba 1](img/prueba1.png)
+
+![Hilos prueba 1](img/prueba2.png)
+
+5 digitos: 
+
+Ejecutando con 1 hilo... 
+User program running 
+Tiempo con 1 hilo: 17336 ms 
+Ejecutando con 16 hilos... 
+Tiempo con 16 hilos: 1791 ms 
+Ejecutando con 32 hilos... 
+Tiempo con 32 hilos: 1678 ms 
+Ejecutando con 200 hilos... 
+Tiempo con 200 hilos: 1598 ms 
+Ejecutando con 500 hilos... 
+Tiempo con 500 hilos: 1644 ms
+
+![Graficas prueba 2](img/prueba3.png)
+
+![Hilos prueba 2](img/prueba4.png)
+
+6 Digitos: 
+
+Al realizar los tests, con 6 digitos, notamos que el proceso era bastante demorado, por lo que por temas de duracion del proceso, no lo incluimos en el informe. 
+
+3. Preguntas: 
+
+1. *¿Por qué no funciona mejor con 500 hilos? ¿Cómo se compara con 200 hilos?*  
+Con 500 hilos, el sistema se complica porque tiene que gestionar demasiados hilos a la vez, lo que hace que el rendimiento no mejore. Con 200 hilos, el tiempo es un poco mejor para 1000 dígitos y casi igual para 10000 dígitos. Esto muestra que usar más hilos no siempre es mejor.
+
+2. *¿Qué pasa si usas tantos hilos como núcleos tiene tu computadora, comparado con el doble de hilos?*  
+Si usamos tantos hilos como núcleos, el rendimiento es bueno porque cada núcleo trabaja eficientemente. Si usamos el doble de hilos, el sistema tiene que cambiar entre ellos constantemente, lo que no mejora mucho el rendimiento. Por ejemplo, con 16 y 32 hilos, la diferencia es pequeña.
+
+3. *¿Sería mejor usar 1 hilo en 500 máquinas en lugar de 500 hilos en una sola computadora?*  
+Sí, sería mejor. Si usaramos 1 hilo en cada una de 500 máquinas, cada máquina trabaja de forma independiente, evitando problemas de competencia por recursos. Esto mejora el rendimiento.
+
+4. *¿Y si usas c hilos en 500/c máquinas?*  
+También sería mejor. Distribuir los hilos entre varias máquinas ayuda a que cada una trabaje sin complicaciones, aprovechando mejor los recursos y evitando cuellos de botella.
