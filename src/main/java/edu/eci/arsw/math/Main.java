@@ -18,7 +18,7 @@ public class Main {
     }
 
     private static void runExperiments() throws InterruptedException {
-        int totalDigits = 1000; 
+        int totalDigits = 1000000;
         int numCores = Runtime.getRuntime().availableProcessors();
 
         // Experimento 1: Con un solo hilo

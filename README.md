@@ -246,10 +246,28 @@ Tiempo con 500 hilos: 1644 ms
 
 ![Hilos prueba 2](img/prueba4.png)
 
-6 Digitos: 
+6 Digitos
 
-Al realizar los tests, con 6 digitos, notamos que el proceso era bastante demorado, por lo que por temas de duracion del proceso, no lo incluimos en el informe. 
+Aca comenzamos a realizar las pruebas con 6 digitos y los respectivos hilos.
 
+![captura 1 hilo.jpg](img/captura%201%20hilo.jpg)
+
+al finalizar nos dio que se demoro un total de 26644539ms con un hilo
+
+![res.jpg](img/res.jpg)
+
+Con el maximo de hilo que estaban disponibles, es decir 12 hilos el tiempo total fue de 5552951 ms
+![captura max hilos.jpg](img/captura%20max%20hilos.jpg)
+
+![captura 2+max.jpg](img/captura%202%2Bmax.jpg)
+
+Tomamos los datos que logramos sacar en una tabla y apartir de ahi haremos las suposiciones.
+
+![graf.png](img/graf.png)
+
+Para el proceso del cálculo con el doble de hilos, 200 y 500 no logramos desarrollarlos debido a que el computador no
+fue capaz de poder desarrollar la tarea sin presentar problemas.(debido a eso la última imagen es una foto a la pantalla 
+del pc)
 3. Preguntas: 
 
 1. *¿Por qué no funciona mejor con 500 hilos? ¿Cómo se compara con 200 hilos?*  

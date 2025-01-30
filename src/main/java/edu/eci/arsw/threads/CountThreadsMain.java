@@ -16,15 +16,15 @@ public class CountThreadsMain {
         CountThread thread2 = new CountThread(99,199);
         CountThread thread3 = new CountThread(200,299);
 
-        System.out.println("***********mostrando threads con start**************");
-        thread1.start();
-        thread2.start();
-        thread3.start();
+        //System.out.println("***********mostrando threads con start**************");
+        //thread1.start();
+        //thread2.start();
+        //thread3.start();
 
-        //System.out.println("**************mostrando threads con run**************");
-        //thread1.run();
-        //thread2.run();
-        //thread3.run();
+        System.out.println("**************mostrando threads con run**************");
+        thread1.run();
+        thread2.run();
+        thread3.run();
         
     }
     
